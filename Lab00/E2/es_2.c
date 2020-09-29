@@ -42,5 +42,5 @@ int main(int argc, char const *argv[]){
     sottostringhe trovate ogni volta che vengono individuate due vocali,
     iterare la procedura ricorsivamente fino alla fine della striga */
 int conta(char S[20] , int n){
-
+    // Prova aggiunta commento
 }
