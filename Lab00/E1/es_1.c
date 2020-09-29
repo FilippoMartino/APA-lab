@@ -12,6 +12,7 @@ int main(int argc, char const *argv[]) {
         printf("%d - Valore: ", i);
         scanf("%d", &V[i]);
     }
+    
 
     printf("Vettore: [");
     for (int i = 0; i < lenght; i++) {
