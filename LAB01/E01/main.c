@@ -12,9 +12,6 @@
 #define MAX_DAYS_NUMBER 20
 #define MAX_TEAMS_NUMBER 20
 
-
-
-
 /* Defnizione della struttura per gestione punteggio squadra */
 typedef struct {
     int row_index;
@@ -77,7 +74,6 @@ int main(int argc, const char * argv[]) {
     /* Libero le variabili allocate dinamicamente */
     free(file_name);
     fclose(fp);
-    
     
     return 0;
 }
