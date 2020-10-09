@@ -1,4 +1,4 @@
-//
+  //
 //  main.c
 //  E02
 //
@@ -178,7 +178,9 @@ void build_recoded_file(FILE* fp, Dictionary my_dictionary[], int dictionary_siz
             recode_word(words[i], recoded_word, my_dictionary, dictionary_size);
             /* Concateno poi di volta in volta le parole codificate */
             strcat(recoded_line, recoded_word);
-            strcat(recoded_line, " ");
+            /* Concateno uno spazio solo se non mi trovo sull'ultima parola */
+            if (i < line_word_number - 1)
+                strcat(recoded_line, " ");
             
             /* Essendo la stringa un buffer non dinamico, devo pulirlo di volta in volta */
             clear_string(recoded_word);
@@ -189,7 +191,7 @@ void build_recoded_file(FILE* fp, Dictionary my_dictionary[], int dictionary_siz
         clear_string(current_line);
         
         /* Stampo sul file la riga decodificata e il carattere '\n' */
-        fprintf(recoded_file, "%s %c", recoded_line, '\n');
+        fprintf(recoded_file, "%s%c", recoded_line, '\n');
         /* Stampa a video (non richiesta), attivabile per debug o per fruizione output immediata */
         //        printf("Riga codificata: %s\n", recoded_line);
         
