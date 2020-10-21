@@ -1,15 +1,7 @@
-//
-//  main.c
-//  E02
-//
-//  Created by Filippo Martino on 21/10/2020.
-//
+#include <stdio.h>
 
 #define TRUE 1
 #define FALSE 0
-
-#include <stdio.h>
-
 
 int is_big_endian(void);
 void stampaCodifica (void *, int, int);

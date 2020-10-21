@@ -1,9 +1,7 @@
-//
-//  main.c
-//  E03
-//
-//  Created by Filippo Martino on 16/10/2020.
-//
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
 
 #define MAX_SEQUENCE 20
 #define MAX_SEQUENCE_SIZE 4
@@ -17,11 +15,6 @@ typedef struct{
 	int position;
 	int id;
 } Word;
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
 
 void compute(FILE*, int, char[MAX_SEQUENCE][MAX_SEQUENCE_SIZE]);
 int is_divider(char);

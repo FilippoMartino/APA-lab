@@ -1,10 +1,3 @@
-//
-//  main.c
-//  E02
-//
-//  Created by Filippo Martino on 15/10/2020.
-//
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

@@ -1,14 +1,7 @@
-//
-//  main.c
-//  E01
-//
-//  Created by Filippo Martino on 13/10/2020.
-//
-
-#define MAX_SIZE 50
-
 #include <stdio.h>
 #include <string.h>
+
+#define MAX_SIZE 50
 
 /* Struttura contenente le informazioni per ogni regione */
 typedef struct {

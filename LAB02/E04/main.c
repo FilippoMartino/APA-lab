@@ -1,10 +1,3 @@
-//
-//  main.c
-//  E04
-//
-//  Created by Filippo Martino on 17/10/2020.
-//
-
 #include <stdio.h>
 #include <string.h>
 
