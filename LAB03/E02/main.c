@@ -17,7 +17,7 @@ int main(int argc, const char * argv[]) {
 	printf("Dimensioni variabili: \n");
 	printf("- float: %d byte, %d bit\n", (int) sizeof(float), (int) sizeof(float) * 8);
 	printf("- double: %d byte, %d bit\n", (int) sizeof(double), (int) sizeof(double) * 8);
-	printf("- long fouble: %d byte, %d bit\n\n", (int) sizeof(long double), (int) sizeof(long double) * 8);
+	printf("- long double: %d byte, %d bit\n\n", (int) sizeof(long double), (int) sizeof(long double) * 8);
 	
 	printf("Inserisci un numero (con virgola ed evenutale esponente: ");
 	scanf("%f", &af);
