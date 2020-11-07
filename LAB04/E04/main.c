@@ -26,12 +26,6 @@ typedef struct {
 	int ritardo;
 } Tratta;
 
-/* Struttura necessaria per ordinamento in base al codice */
-typedef struct{
-	char id[MAX_SIZE];
-	int value;
-} Codice;
-
 /* Menu */
 typedef enum {
 	stampa,
@@ -51,7 +45,6 @@ void stampa_tratte_su_file(int, Tratta[MAX_SIZE], FILE*);
 int get_comando(void);
 int seleziona_dati(int, Tratta[MAX_SIZE], comando_e, int*);
 int confronta_date(Data, Data);
-int cerca_ricorrenza_codice(Codice, int);
 
 void stampa_log(int, Tratta[MAX_SIZE]);
 void ordina_data(int, Tratta[MAX_SIZE]);
@@ -59,7 +52,7 @@ void ordina_codice(int, Tratta[MAX_SIZE]);
 void ordina_partenza(int, Tratta[MAX_SIZE]);
 void ordina_arrivo(int, Tratta[MAX_SIZE]);
 void ricerca_arrivo(int, Tratta[MAX_SIZE]);
-void ricerca_arrivo_dicotomica(int, Tratta[MAX_SIZE]);
+void ricerca_partenza_dicotomica(int, Tratta[MAX_SIZE]);
 
 int main(int argc, const char * argv[]) {
 	/* Controllo parametri linea di comando */
@@ -91,7 +84,6 @@ int main(int argc, const char * argv[]) {
 	/* Controllo sul comando inserito */
 	if (comando == - 1){
 		printf("Hai inserito un comando errato\n");
-		exit(EXIT_FAILURE);
 	}
 	
 	
@@ -279,7 +271,7 @@ int seleziona_dati(int numero_tratte, Tratta tratte[numero_tratte], comando_e co
 			return 1;
 		case stazione:
 			if (*ordinato)
-				ricerca_arrivo_dicotomica(numero_tratte, tratte);
+				ricerca_partenza_dicotomica(numero_tratte, tratte);
 			else
 				ricerca_arrivo(numero_tratte, tratte);
 			
@@ -390,43 +382,17 @@ void ordina_data(int numero_tratte, Tratta tratte[numero_tratte]){
 
 void ordina_codice(int numero_tratte, Tratta tratte[numero_tratte]){
 	
-	/* Dichiarazione e riempimento struttura codice*/
-	Codice codici[numero_tratte];
 	
-	
-	for (int i = 0; i < numero_tratte; i ++) {
-		strcpy(codici[i].id, tratte[i].codice_tratta);
-		codici[i].value = atoi(tratte[i].codice_tratta + 3);
-	}
-	
-	/* Implemento nuovamente un bubble sort per ordinare la struttura appena ricavata */
+	/* Ordino i codici con un bubble sort modificato, sfruttando l'aritmetica dei puntatori */
 	for (int i = 0; i < numero_tratte - 1; i ++) {
 		for (int j = numero_tratte - 1; j > 0; j--) {
-			if (codici[j].value < codici[j - 1].value) {
-				Codice temp = codici[j];
-				codici[j] = codici[j - 1];
-				codici[j - 1] = temp;
+			if (atoi(tratte[j].codice_tratta + 3) < atoi(tratte[j - 1].codice_tratta + 3)) {
+				Tratta temp = tratte[j];
+				tratte[j] = tratte[j - 1];
+				tratte[j - 1] = temp;
 			}
 		}
 	}
-	
-	int flag = 0;
-	
-	Tratta tratte_o_codice[numero_tratte];
-	
-	for (int i = 0; i < numero_tratte; i++) {
-		
-		for (int j = 0; j < numero_tratte; j++) {
-			if (!strcmp(codici[i].id, tratte[j].codice_tratta) && !flag) {
-				tratte_o_codice[i] = tratte[j];
-				flag = 1;
-			}
-		}
-		flag = 0;
-		
-	}
-	
-	for (int i = 0; i < numero_tratte; i++)	tratte[i] = tratte_o_codice[i];
 	
 	printf("Tratte ordinate per codice\n");
 	
@@ -463,7 +429,7 @@ void ordina_arrivo(int numero_tratte, Tratta tratte[numero_tratte]){
 	printf("Tratte ordinate per stazione di arrivo\n");
 }
 
-void ricerca_arrivo_dicotomica(int numero_tratte, Tratta tratte[numero_tratte]){
+void ricerca_partenza_dicotomica(int numero_tratte, Tratta tratte[numero_tratte]){
 	
 	char stazione_partenza[MAX_SIZE];
 	printf("Inserire la stazione che desideri cercare: ");
