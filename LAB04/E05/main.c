@@ -84,9 +84,8 @@ int main(int argc, const char * argv[]) {
 	comando_e comando = get_comando();
 	
 	/* Controllo sul comando inserito */
-	if (comando == - 1){
-		printf("Hai inserito un comando errato\n");
-	}
+	if (comando == - 1)	printf("Hai inserito un comando errato\n");
+	
 	
 	Tratta log_tratte[MAX_ORDINAMENTI][numero_tratte];
 	
@@ -277,14 +276,10 @@ int get_comando(){
  */
 int seleziona_dati(int numero_tratte, Tratta tratte[numero_tratte], comando_e comando, Tratta log_tratte[MAX_ORDINAMENTI][numero_tratte], int* numero_ordinamenti, int* ordinato){
 	
-//	for (int i = 0; i < numero_tratte; i++) printf("Codice tratta %d -> %s\n", i + 1, tratte[i].codice_tratta);
-	
-	
+	/* Copio ogni volta l'array letto inizialmente nel log */
 	copia_struttura(numero_tratte, log_tratte[*numero_ordinamenti], tratte);
 	
-//	for (int i = 0; i < numero_tratte; i++) printf("Codice tratta (log) %d -> %s\n", i + 1, log_tratte[*numero_ordinamenti][i].codice_tratta);
-	
-	
+	/* Smisto tra i vari comandi, se prevede un ordinamento, incremento il puntatore */
 	switch (comando) {
 		case stampa:
 			stampa_log(numero_tratte, *numero_ordinamenti, log_tratte);
@@ -311,7 +306,6 @@ int seleziona_dati(int numero_tratte, Tratta tratte[numero_tratte], comando_e co
 				ricerca_partenza_dicotomica(numero_tratte, tratte);
 			else
 				ricerca_arrivo(numero_tratte, tratte);
-			
 			return 1;
 		case fine:
 			return 0;
@@ -369,6 +363,9 @@ int confronta_date(Data data_1, Data data_2){
 	
 }
 
+/**
+ Smista i casi possibili di stampa (a terminale oppure su file) e richiama le rispettive funzioni
+ */
 void stampa_log(int numero_tratte, int numero_ordinamenti, Tratta tratte[numero_ordinamenti][numero_tratte]){
 	
 	char c;
@@ -399,6 +396,9 @@ void stampa_log(int numero_tratte, int numero_ordinamenti, Tratta tratte[numero_
 	
 }
 
+/**
+ Ordinamento delle tratte rispetto alla data di partenza, utilizza un algoritmo di sorting e si appoggia alla funzione [confronta_date]
+ */
 void ordina_data(int numero_tratte, Tratta tratte[numero_tratte]){
 	
 	/* Implemento un bubble sort modificato per le date */
@@ -417,6 +417,9 @@ void ordina_data(int numero_tratte, Tratta tratte[numero_tratte]){
 	
 }
 
+/**
+ Ordinamento delle tratte rispetto al codice
+ */
 void ordina_codice(int numero_tratte, Tratta tratte[numero_tratte]){
 	
 	
@@ -435,11 +438,15 @@ void ordina_codice(int numero_tratte, Tratta tratte[numero_tratte]){
 	
 }
 
+/**
+ Ordimento delle tratte rispetto alla stazione di partenza
+ */
 void ordina_partenza(int numero_tratte, Tratta tratte[numero_tratte]){
 	
 	/* Ordino con un bubble sort adattato alle stringhe */
 	for (int i = 0; i < numero_tratte - 1; i ++) {
 		for (int j = numero_tratte - 1; j > 0; j--) {
+			/* Per ordinare alfabeticamente sfutto la strcmp*/
 			if (strcmp(tratte[j].partenza, tratte[j - 1].partenza) < 0) {
 				Tratta temp = tratte[j];
 				tratte[j] = tratte[j - 1];
@@ -450,6 +457,9 @@ void ordina_partenza(int numero_tratte, Tratta tratte[numero_tratte]){
 	printf("Tratte ordinate per stazione di partenza\n");
 }
 
+/**
+ Ordimento delle tratte rispetto alla stazione di arrivo
+ */
 void ordina_arrivo(int numero_tratte, Tratta tratte[numero_tratte]){
 	
 	/* Ordino con un bubble sort adattato alle stringhe */
@@ -466,10 +476,13 @@ void ordina_arrivo(int numero_tratte, Tratta tratte[numero_tratte]){
 	printf("Tratte ordinate per stazione di arrivo\n");
 }
 
+/**
+ Se l'ordinamento precedente è stato fatto per stazioni di partenza, utilizzo una ricerca dicotomica, più efficente su un vettore ordinato
+ */
 void ricerca_partenza_dicotomica(int numero_tratte, Tratta tratte[numero_tratte]){
 	
 	char stazione_partenza[MAX_SIZE];
-	printf("Inserire la stazione che desideri cercare: ");
+	printf("Inserire la stazione (di partenza) che desideri cercare: ");
 	scanf("%s", stazione_partenza);
 	
 	int start = 0;
@@ -477,24 +490,21 @@ void ricerca_partenza_dicotomica(int numero_tratte, Tratta tratte[numero_tratte]
 	int mid;
 	int index = -1;
 	
-	
-	
-	for	(;start <= end;){
+	for	(; start <= end ;){
 		
 		mid = (end - start) / 2 + start;
 		
 		if (strstr(tratte[mid].partenza, stazione_partenza) != NULL) {
 			index = mid;
 			end = mid - 1;
-		}else if (strcmp(tratte[mid].partenza, stazione_partenza) > 0){
+		} else if (strcmp(tratte[mid].partenza, stazione_partenza) > 0){
 			end = mid - 1;
 			
-		}else {
+		} else {
 			start = mid + 1;
 		}
-		
 	}
-	
+
 	if (index != -1) {
 		stampa_tratta(tratte[index]);
 		for (int i = 1; strstr(tratte[index + i].partenza, stazione_partenza) != NULL; i++) stampa_tratta(tratte[index + i]);
@@ -502,14 +512,15 @@ void ricerca_partenza_dicotomica(int numero_tratte, Tratta tratte[numero_tratte]
 		printf("Non sono state trovate partenze alla stazione inserita\n");
 	}
 	
-	
-	
 }
 
+/**
+ Se le tratte non sono ordinate per il vettore di partenza, ricerco in maniera linare
+ */
 void ricerca_arrivo(int numero_tratte, Tratta tratte[numero_tratte]){
 	
 	char stazione_partenza[MAX_SIZE];
-	printf("Inserire la stazione che desideri cercare: ");
+	printf("Inserire la stazione (di partenza) che desideri cercare: ");
 	scanf("%s", stazione_partenza);
 	int stampato = 0;
 	
