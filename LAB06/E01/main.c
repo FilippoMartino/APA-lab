@@ -20,6 +20,8 @@ void free_playlists(int, Playlist*);
 Friend* read_songs(int, int*, FILE*);
 int get_playlist_number(int, Friend*);
 void build_playlists(Playlist*, Friend*, int, int*, int, char**);
+Playlist* get_playlist(int, Friend*);
+void print_playlists(Playlist*, int, int);
 
 int main(int argc, const char * argv[]) {
 	
@@ -44,34 +46,9 @@ int main(int argc, const char * argv[]) {
 	
 	playlists_number = get_playlist_number(friends_number, friends);
 	
-	Playlist* playlists = malloc(sizeof(Playlist) * playlists_number);
+	Playlist* playlists = get_playlist(friends_number, friends);
 	
-	for (int i = 0; i < playlists_number; i++) playlists[i].songs = malloc(sizeof(char**) * friends_number);
-	
-	for (int i = 0; i < playlists_number; i++)
-	for (int j = 0; j < friends_number; j++)
-	playlists[i].songs[j] = malloc(sizeof(char*) * MAX_SONG_LENGHT);
-	
-	int* temp;
-	*temp = 0;
-	
-	char** current_playlist = malloc(sizeof(char**) * friends_number);
-	
-	for (int i = 0; i < friends_number; i++) {
-		current_playlist[i] = malloc(sizeof(char*) * MAX_SONG_LENGHT);
-	}
-	
-	build_playlists(playlists, friends, 0, temp, friends_number, current_playlist);
-	
-	printf("lista possibili playlist\n");
-	for (int i = 0; i < playlists_number; i ++) {
-		printf("\n######################\n");
-		for (int j = 0; j < friends_number; j++) {
-			printf("%s\n", playlists[i].songs[j]);
-		}
-		printf("######################\n");
-	}
-	
+	print_playlists(playlists, playlists_number, friends_number);
 	
 	free_friends(friends_number, friends);
 	free_playlists(playlists_number, playlists);
@@ -202,11 +179,82 @@ void build_playlists(Playlist* playlist, Friend* friend, int current_friend, int
 		current_friend --;
 		if (current_friend == friends_number) return;
 	}
-	
-	
-	
-	
-	
-	
+}
 
+Playlist* get_playlist(int friends_number, Friend* friends){
+	
+	int playlists_number = get_playlist_number(friends_number, friends);
+	
+	Playlist* playlists = malloc(sizeof(Playlist) * playlists_number);
+	
+	for (int i = 0; i < playlists_number; i++){
+		playlists[i].songs = malloc(sizeof(char**) * friends_number);
+	}
+	
+	for (int i = 0; i < playlists_number; i++){
+		for (int j = 0; j < friends_number; j++){
+			playlists[i].songs[j] = malloc(sizeof(char*) * MAX_SONG_LENGHT);
+		}
+	}
+	
+	int* current_playlist = malloc(sizeof(int));
+	*current_playlist = 0;
+	
+	char** single_playlist = malloc(sizeof(char**) * friends_number);
+	
+	for (int i = 0; i < friends_number; i++) {
+		single_playlist[i] = malloc(sizeof(char*) * MAX_SONG_LENGHT);
+	}
+	
+	build_playlists(playlists, friends, 0, current_playlist, friends_number, single_playlist);
+	
+	free(current_playlist);
+	
+	return playlists;
+	
+	
+}
+
+void print_playlists(Playlist* playlists, int playlists_number, int songs_number){
+	
+	char c;
+	printf("Stampo a console o su file?\nc -> console\nf -> file\nInserire comando: ");
+	scanf("%c", &c);
+	
+	if (c == 'c') {
+		printf("--Lista possibili playlist--\n");
+		for (int i = 0; i < playlists_number; i ++) {
+			printf("\n######################\n");
+			for (int j = 0; j < songs_number; j++) {
+				printf("%s\n", playlists[i].songs[j]);
+			}
+			printf("######################\n");
+		}
+	} else if (c == 'f'){
+		
+		char filename[MAX_SONG_LENGHT];
+		printf("Nome del file su cui devo salvare? (inserire .txt come estensione): ");
+		scanf("%s", filename);
+		
+		FILE* fp = fopen(filename, "w");
+		
+		if(fp == NULL){
+			printf("Errore durante l'apertura del file\n");
+			exit(EXIT_FAILURE);
+		}
+		
+		fprintf(fp, "--Lista possibili playlist--\n");
+		
+		for (int i = 0; i < playlists_number; i ++) {
+			fprintf(fp, "\n######################\n");
+			for (int j = 0; j < songs_number; j++) {
+				fprintf(fp, "%s\n", playlists[i].songs[j]);
+			}
+			fprintf(fp, "######################\n");
+		}
+		fclose(fp);
+		printf("Elenco playlist stampato su file %s\n", filename);
+		
+	}
+	
 }
