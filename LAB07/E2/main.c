@@ -89,6 +89,8 @@ int main(int argc, const char * argv[]) {
 	/* Inizializzo la mia lista vuota */
 	Registry* my_registry = NULL;
 	
+	
+	/* Ciclo finechè l'utente non inserisce il comando per terminare */
 	for (int command = get_command(); command != fine ; command = get_command()) {
 		
 		switch (command) {
@@ -102,6 +104,11 @@ int main(int argc, const char * argv[]) {
 				find_by_code(my_registry);
 				break;
 			case canc_per_id:
+				/*
+				 Utilizzo la stessa funzione per la cancellazione,
+				 passando un enumerazione come parametro per specificare
+				 secondo cosa cancellare
+				 */
 				my_registry = delete(my_registry, id);
 				break;
 			case canc_per_date:
@@ -117,6 +124,9 @@ int main(int argc, const char * argv[]) {
 	
 }
 
+/**
+ Stampa una singola anagrafe
+ */
 void print_single_record(Bio bio){
 	
 	printf("\nCodice: %s\nNome: %s\nCognome: %s\nData di nascita: %d/%d/%d\nVia: %s\nCittà: %s\nCAP: %d\n\n",
@@ -132,6 +142,11 @@ void print_single_record(Bio bio){
 	
 }
 
+
+
+/**
+ Stampa l'intera lista
+ */
 void print_registry(Registry* registry){
 	
 	for (; registry != NULL; registry = registry->next) {
@@ -141,8 +156,15 @@ void print_registry(Registry* registry){
 	
 }
 
+/**
+ Restituisce il numero di righe di un file
+ 
+ @param file_name nome del file
+ @returns numero righe del file se è andato tutto bene, 0 se sono intercorsi errori
+ 
+*/
 int get_file_lenght(char* file_name){
-	
+		
 	FILE* fp = fopen(file_name, "r");
 	
 	if (fp == NULL) {
@@ -162,13 +184,20 @@ int get_file_lenght(char* file_name){
 	return lines;
 }
 
+/**
+ Aggiunge contenuti ad una lista, permettendo all'utente di scegliere se aggiungere contenuti da file o da console
+ 
+ @param registry puntatore alla testa della lista su cui si vuole operare
+ @returns 1 if OK, 0 if KO
+ 
+ */
 int fill_list(Registry** registry){
 	
 	fflush(stdin);
 	char c;
 	printf("Scegliere sorgente input..\nc -> console\nf -> file\nComando: ");
 	scanf("%c", &c);
-	
+		
 	if (c == 'c') {
 		
 		Bio* my_bio = get_bio_by_console();
@@ -209,6 +238,12 @@ int fill_list(Registry** registry){
 	
 }
 
+/**
+ Si occupa di leggere e formattare una struttura "Bio" gestendone l'input da console
+ 
+ @returns Puntatore ad una struttura "compilata"
+ 
+ */
 Bio* get_bio_by_console(){
 	
 	Bio* bio = malloc(sizeof(Bio));
@@ -243,6 +278,13 @@ Bio* get_bio_by_console(){
 	return bio;
 }
 
+/**
+ Si occupa di leggere un elenco di anagrafi da un file
+ 
+ @param file_name nome del file da cui si vogliono "estrarre" i record delle anagrafi
+ @returns Puntatore al primo record della sequenza trovata dalla funzione (può essercene uno o più)
+ 
+ */
 Bio* get_bio_by_file(char* file_name){
 	
 	FILE* fp = fopen(file_name, "r");
@@ -294,10 +336,19 @@ void mem_check(void* p){
 }
 
 /**
- Genera un nodo, allocandovi lo spazio necesario, inserendoci il valore di riferimento
- e legandolo al nodo successivo, parametro next
+	
  
  Se incorre in problemi (allocazione memoria fallita) restituisce NULL
+ */
+
+/**
+ Genera un nodo, allocandovi lo spazio necesario, inserendoci il valore di riferimento
+ e legandolo al nodo successivo
+ 
+ @param bio puntatore struttura Bio corrispondente ad un record anagrafe
+ @param next nodo successivo
+ @returns Puntatore al nodo attuale
+ 
  */
 Registry* new_node(Bio* bio, Registry* next){
 	
@@ -312,17 +363,25 @@ Registry* new_node(Bio* bio, Registry* next){
 	
 }
 
+
+
 /**
+ 
  Inserisce un nuovo nodo secondo il criterio di questo esercizio, ossia la data di nascita
  più recente; si occupa inoltre anche di gestire i casi di lista vuota, generando ed inserrendo una
  nuova testa.
  
- Se incorre in problemi restituisce NULL
+ @param registry testa della lista
+ @param bio puntatore struttura Bio corrispondente ad un record anagrafe
+ 
+ @returns Puntatore a primo nodo if OK, NULL if KO
+ 
  */
 Registry* insert_sorted_list(Registry* registry, Bio* bio){
 	
 	Date my_date = bio->date_of_birth;
 	
+	/* Gestione lista vuota */
 	if (registry == NULL || is_greater(my_date, registry->bio->date_of_birth) == 1) {
 		return new_node(bio, registry);
 	}
@@ -330,21 +389,27 @@ Registry* insert_sorted_list(Registry* registry, Bio* bio){
 	Registry* current;
 	Registry* temp;
 	
+	/* Percorro la lista finchè trovo il punto in cui inserire il nuovo record */
 	for (current = registry->next, temp = registry;
 		 current != NULL && is_greater(my_date, current->bio->date_of_birth) != 1;
 		 temp = current, current = current->next);
 	
 	temp->next = new_node(bio, current);
 	
-	
 	return registry;
 }
 
+
 /**
- Confronta due date, ritorna:
- 1 se data_1 > date_2
- 0 se data_1 = date_2
- -1 se data_1 < date_2
+ Confronta due date (vedi struttura Date)
+ 
+ @param date_1 la prima data
+ @param date_2 la seconda data
+ 
+ @returns 1 se data_1 > date_2
+ @returns 0 se data_1 == data_2
+ @returns -1 se data_1 < data_2
+ 
  */
 int is_greater(Date date_1, Date date_2){
 	
@@ -372,6 +437,13 @@ int is_greater(Date date_1, Date date_2){
 	
 }
 
+/**
+ Ordina un array di recrod Bio, ossia un record di anagrafi
+ 
+ @param bio puntatore alla prima anagrafe
+ @param record_number il numero di record da ordinare
+ 
+ */
 void sort_bio(Bio* bio, int record_number){
 	
 	for (int i = 0; i < record_number - 1; i++) {
@@ -387,7 +459,11 @@ void sort_bio(Bio* bio, int record_number){
 }
 
 /**
- Gestisce l'input
+ Gestisce le richieste dell'utente, convertendole in uno dei comandi consentiti
+ 
+ @returns @b comando in caso di successo restituisce il valore dell'enum, tra i comandi possibili
+ @returns @b 0 in caso di comando errato
+ 
  */
 int get_command(){
 	
@@ -418,6 +494,15 @@ int get_command(){
 	
 }
 
+/**
+ Cerca il record @a Bio corrispondente ad un @a id
+ 
+ @param registry puntatore alla testa della lista nella quale cercare
+ @param id stringa @a id per la quale cercare
+ @returns @b Bio* puntaore al record trovato
+ @returns @b NULL se non sono stati trovati record corrispondenti all'id passato
+ 
+ */
 Bio* sort_list_search(Registry* registry, char* id){
 	
 	Registry* current;
@@ -448,8 +533,18 @@ void find_by_code(Registry* reg){
 	
 }
 
+/**
+ Gestisce l'eliminazione di uno o più nodi di una lista a seconda di uno dei due criteri permessi,
+ ossia per @a id oppure per @a data
+ 
+ @param reg puntatore alla testa della lista dalla quale si volgiono eliminare i nodi
+ @param dt tipo di eliminazione che si vuole operare, è speficato nell'enumerazione @a delete_type
+ @returns @b Registry* puntatore alla testa della "nuova" lista epurata
+ 
+ */
 Registry* delete(Registry* reg, delete_type dt){
 	
+	/* Caso eliminzaione per id */
 	if (dt == id) {
 		
 		char my_id[MAX_ID_SIZE];
@@ -457,6 +552,7 @@ Registry* delete(Registry* reg, delete_type dt){
 		scanf("%s", my_id);
 		Bio* bio = delete_by_id(&reg, my_id);
 		
+		/* Gestisco la possibilità che l'id fornito non sia stato trovato */
 		if (bio != NULL) {
 			printf("Record trovato :\n");
 			print_single_record(*bio);
@@ -467,6 +563,7 @@ Registry* delete(Registry* reg, delete_type dt){
 		
 		return reg;
 		
+	/* Caso eliminazione per data */
 	} else if (dt == date) {
 		
 		Date date_1, date_2;
@@ -477,6 +574,8 @@ Registry* delete(Registry* reg, delete_type dt){
 		scanf("%d/%d/%d", &date_2.day, &date_2.month, &date_2.year);
 		
 		Registry* my_list = reg;
+		
+		/* Alloco lo spazio (inizialmente == 1) per un record di id*/
 		char** id_lists = (char**) malloc(sizeof(char*));
 		int list_length = 0;
 		
@@ -492,7 +591,11 @@ Registry* delete(Registry* reg, delete_type dt){
 			}
 		}
 		
-		
+		/*
+		 se ho trovato almento un id, procedo alla cancellazione del range
+		 "riciclando" la funzione di cancellaizone per l'id, passandole
+		 di volta in volta l'id trovato
+		 */
 		
 		if (list_length) {
 			printf("Record:\n");
@@ -504,8 +607,14 @@ Registry* delete(Registry* reg, delete_type dt){
 			printf("Non sono presenti record tra le due date inserite\n");
 		}
 		
-		return reg;
+		/* Dealloco l'array di id */
+		for (int i = 0; i < list_length; i++) {
+			free(id_lists[i]);
+		}
 		
+		free(id_lists);
+		
+		return reg;
 		
 	} else {
 		return reg;
@@ -513,39 +622,54 @@ Registry* delete(Registry* reg, delete_type dt){
 	
 }
 
+/**
+ Cancellazione con estrazione di un nodo secodo un id
+ 
+ @param reg Puntatore al puntatore alla testa della lista dalla quale voglio estrarre il mio nodo
+ @param id il criterio di eliminazione
+ @returns @b Bio* puntatore alla struttura @a Bio contenente le informazioni del nodo estratto
+ @returns @b NULL in caso sia stata passata una lista vuota
+ 
+ */
 Bio* delete_by_id(Registry** reg, char* id){
 	
+	/* Gesitone lista vuota */
 	if (reg == NULL)
 		return NULL;
-	
-	
 	
 	Registry* current;
 	Registry* temp;
 	
-	
+	/* Scorrimento lista finchè non trovo il nodo oppure arrivo in fondo */
 	for (current = *reg, temp = NULL;
 		 current != NULL;
 		 temp = current, current = current->next){
 		
+		/* Sostituzione puntatori e deallocazione */
 		if(!strcmp(current->bio->id, id)){
 			if (*reg == current)
 				*reg = current->next;
 			else
 				temp->next = current->next;
 			
+			/* Estrazine dato valore */
 			Bio* bio = current->bio;
 			free(current);
 			
 			return bio;
 		
 		}
-		
 	}
-	
+	/* Se no è stato trovato il nodo per la chiave di cancellazione */
 	return NULL;
 }
 
+/**
+ Dealloca una lista
+ 
+ @param reg il puntatore alla lista da deallocare
+ 
+ */
 void free_list(Registry* reg){
 	for (;reg != NULL;){
 		Registry* temp = reg;
