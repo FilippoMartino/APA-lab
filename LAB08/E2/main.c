@@ -4,6 +4,11 @@
 
 #define GEMSTONE_NUMBER 4
 
+#define ZAFFIRO 'z'
+#define RUBINO 'r'
+#define TOPAZIO 't'
+#define SMERALDO 's'
+
 const int legame_zaffiro[2] = {0, 1};
 const int legame_smeraldo[2] = {2, 3};
 const int legame_rubino[2] = {2, 3};
@@ -34,30 +39,34 @@ typedef struct {
 	gem_type stone;
 	gem_type links[2];
 	int quantity;
+	int value;
 }Gemstone;
 
 typedef struct _collana Collana;
 
 struct _collana{
 	int collana[GEMSTONE_NUMBER];
+	char* composizione;
+	int pietre_totali;
+	int valore_totale;
 	Collana* next;
 };
 
 
 Gemstone* get_gem(int*);
 
-Collana* new_node(int*);
+Collana* dup_node(Collana*);
 Collana* scroll_collana(Collana*);
 Collana* init_collane(void);
 
-void make_collane(Gemstone*, Collana**, gem_type, int*);
+void make_collane(Gemstone*, Collana**, gem_type, int, Collana*);
 void get_max_lenght(void);
 void free_list(Collana*);
 void print_collane(Collana*);
 
 int get_max(Collana*);
-int* duplica_collana(int*);
-
+int check_rep(char*, int);
+int check_z_s(char*);
 
 int main(int argc, const char * argv[]) {
 	
@@ -123,81 +132,122 @@ void get_max_lenght(void){
 		exit(EXIT_FAILURE);
 	}
 	
-	for (int i = 0; i < GEMSTONE_NUMBER; i ++) {
+	for (int i = 0; i < GEMSTONE_NUMBER; i++) {
 		printf("Inserire il numero di %s: ", gem_name_p[i]);
 		scanf("%d", &gems_number[i]);
 	}
 	
+//	gems_number[0] = 4;
+//	gems_number[1] = 8;
+//	gems_number[2] = 2;
+//	gems_number[3] = 10;
+	
 	Gemstone* my_gems = get_gem(gems_number);
+	
+	for (int i = 0; i < GEMSTONE_NUMBER; i++) {
+		printf("Inserire il valore della pietra %s: ", gem_name_s[i]);
+		scanf("%d", &my_gems[i].value);
+	}
+	
+//	my_gems[0].value = 13;
+//	my_gems[1].value = 1;
+//	my_gems[2].value = 8;
+//	my_gems[3].value = 23;
 	
 	if (gems_number == NULL){
 		printf("Problemi di allocazione memoria");
 		exit(EXIT_FAILURE);
 	}
 	
-	int max = 0;
+	int max_rep;
+	
+	printf("Inserire numero massimo di ripetizioni: ");
+	scanf("%d", &max_rep);
+	
+//	int max_rep = 3;
+	
 	Collana* collane = init_collane();
+	Collana* max = init_collane();
 	
-	for (int i = 0; i < GEMSTONE_NUMBER; i++)
-		make_collane(my_gems, &collane, i, &max);
 	
-	printf("Massima lunghezza collana componibile: %d\n\n", max);
+	for (int i = 0; i < GEMSTONE_NUMBER; i++) {
+		make_collane(my_gems, &collane, i, max_rep, max);
+		free_list(collane);
+		collane = init_collane();
+	}
+	
+	printf("Soluzione ottima di valore %d usando %d gemma/e\nComposizione collana: %s\n",
+		   max->valore_totale,
+		   max->pietre_totali,
+		   max->composizione);
+	
 	
 	free(my_gems);
 	free_list(collane);
 	
 }
 
-/**
- Funzione ricorsiva che si occupa di generare una lista contenente tutte le possibli combinazioni corrette di pietre in una collana
- 
- @param gemstones puntatore all'array di "informazioni" che servono alla funzione per comporre la collana
- @param collane puntatore alla testa della lista di collane @b ATTENZIONE: la lista di collane deve essere passata con la testa inizializzata a 0, si consiglia l'utilizzo della funzione @a init_collana() che si occupa proprio di realizzare una lista "vuota" correttamente
- @param gem enumerazione specificante la prima gemma della collana, ossia quella da cui la ricorsione avrà inizio.. questa funzione ricorsiva deve essere chiamata per ogni pietra disponibile, in modo da trovare delle combinazioni magari maggiori se si inizia con una pietra differente
- @param max puntatore ad un intero in cui verrà salvata, se maggiore, la lunghezza della collana finale ottenuta
- 
- */
-void make_collane(Gemstone* gemstones, Collana** collane, gem_type gem, int* max){
+void make_collane(Gemstone* gemstones, Collana** last_node, gem_type gem, int max_rep, Collana* max){
 	
-	Collana* current = scroll_collana(*collane);
+	Collana* current = *last_node;
 	
-	if ((current->collana[0] + current->collana[1] + current->collana[2] + current->collana[3]) > *max)
-		*max = current->collana[0] + current->collana[1] + current->collana[2] + current->collana[3];
+//	if (current->collana[zaffiro] == current->collana[smeraldo] && gem == zaffiro)
+//		return;
 	
+	/* Controllo se posso continuare ad aggiungere pietre o se le ho finite */
 	
-	if (gemstones[gem].quantity - current->collana[gem] == 0) {
-		return ;
-	}
-		
+	if (current->collana[gem] == gemstones[gem].quantity)
+		return;
+	
 	current->collana[gem] = current->collana[gem] + 1;
 	
-	make_collane(gemstones, collane, gemstones[gem].links[0], max);
+	current->valore_totale = current->valore_totale + gemstones[gem].value;
 	
-	current->next = new_node(duplica_collana(current->collana));
-	
-	make_collane(gemstones, collane, gemstones[gem].links[1], max);
-}
-
-/**
- Duplica una collana, ossia un vettore di n (dove n è il numero di pietre) interi
- 
- @param collana puntatre alla collana da duplicare
- @returns @b int* il duplicato della collana fornita alla funzione
- 
- */
-int* duplica_collana(int* collana){
-	
-	int* cpy = (int*) malloc(sizeof(int) * GEMSTONE_NUMBER);
-	
-	if (cpy == NULL) {
-		printf("Errore di allocazione memoria\n");
-		return NULL;
+	switch (gem) {
+		case zaffiro:
+			current->composizione[current->pietre_totali] = ZAFFIRO;
+			current->composizione[current->pietre_totali + 1] = '\0';
+			break;
+		case rubino:
+			current->composizione[current->pietre_totali] = RUBINO;
+			current->composizione[current->pietre_totali + 1] = '\0';
+			break;
+		case topazio:
+			current->composizione[current->pietre_totali] = TOPAZIO;
+			current->composizione[current->pietre_totali + 1] = '\0';
+			break;
+		case smeraldo:
+			current->composizione[current->pietre_totali] = SMERALDO;
+			current->composizione[current->pietre_totali + 1] = '\0';
+			break;
 	}
 	
-	for (int i = 0; i < GEMSTONE_NUMBER; i++) cpy[i] = collana[i];
+	current->composizione = realloc(current->composizione, sizeof(char) * (current->pietre_totali + 1) + 1);
+	current->pietre_totali = current->pietre_totali + 1;
 	
-	return cpy;
+	if (check_z_s(current->composizione) || check_rep(current->composizione, max_rep)) {
+		return;
+	}
+	
+	
+	if (current->valore_totale > max->valore_totale) {
+		max->valore_totale = current->valore_totale;
+		max->composizione = strdup(current->composizione);
+		max->pietre_totali = current->pietre_totali;
+	}
+	
+//	printf("%s - [Tot val: %d] [Tot pietre: %d]\n", current->composizione, current->valore_totale, current->pietre_totali);
+	
+	Collana* right = dup_node(current);
+	
+	make_collane(gemstones, &current, gemstones[gem].links[0], max_rep, max);
+
+	current->next = right;
+	
+	make_collane(gemstones, &right, gemstones[gem].links[1], max_rep, max);
+	
 }
+
 
 /**
  Crea una nuova lista, fornendo il puntatore alla testa, i valori delle pietre della collana vengono tutti inizializzati a 0
@@ -217,20 +267,16 @@ Collana* init_collane(){
 	for (int i = 0; i < GEMSTONE_NUMBER; i++)
 	head->collana[i] = 0;
 	
+	head->composizione = (char*) malloc(sizeof(char) * 2);
+	head->valore_totale = 0;
+	head->pietre_totali = 0;
 	head->next = NULL;
 	
 	return head;
 	
 }
 
-/**
- Crea, a partire dal valore di una collana, il nodo corrispondente, per permettere di aggiungere appunto il valore "collana" ad una lista
- 
- @param collana puntatore alla collana da "tradurre" in nodo
- @returns @b Collana* un nodo collana
- 
- */
-Collana* new_node(int* collana){
+Collana* dup_node(Collana* collana){
 	
 	Collana* my_collana = (Collana*) malloc(sizeof(Collana));
 	
@@ -240,7 +286,11 @@ Collana* new_node(int* collana){
 	}
 	
 	for (int i = 0; i < GEMSTONE_NUMBER; i++)
-	my_collana->collana[i] = collana[i];
+		my_collana->collana[i] = collana->collana[i];
+	
+	my_collana->composizione = strdup(collana->composizione);
+	my_collana->pietre_totali = collana->pietre_totali;
+	my_collana->valore_totale = collana->valore_totale;
 	
 	my_collana->next = NULL;
 	
@@ -248,13 +298,7 @@ Collana* new_node(int* collana){
 	
 }
 
-/**
- Percorre tutta la lista e restituisce il puntatore all'ultimo elemento
- 
- @param collana puntatore alla testa della lista
- @returns @b *Collana puntatore all'ultima collana della lista
- 
- */
+
 Collana* scroll_collana(Collana* collana){
 	
 	Collana* last = collana;
@@ -265,6 +309,7 @@ Collana* scroll_collana(Collana* collana){
 	
 	return last;
 }
+
 /**
  Dealloca lo spazio di memoria per una lista di tipo @a Collana
  
@@ -274,6 +319,62 @@ void free_list(Collana* collana){
 	for (; collana != NULL;) {
 		Collana* temp = collana;
 		collana = collana->next;
+		free(temp->composizione);
 		free(temp);
 	}
+}
+
+void print_collane(Collana* collane){
+	
+	for (; collane != NULL; collane = collane->next) {
+		printf("[%d %d %d %d] - pietre totali: %d - disposizione: %s\n",
+			   collane->collana[0],
+			   collane->collana[1],
+			   collane->collana[2],
+			   collane->collana[3],
+			   collane->pietre_totali,
+			   collane->composizione);
+	}
+	
+}
+
+int check_rep(char* string, int max_rep){
+	
+	int counter = 0;
+	
+	for (int i = 0; string[i] != '\0'; i++) {
+		
+		if (i) {
+			if (string[i] == string[i - 1])
+				counter ++;
+			else
+				counter = 0;
+			
+			if (counter == max_rep)
+				return 1;
+		}
+		
+	}
+	
+	return 0;
+	
+}
+
+int check_z_s(char* string){
+	
+	int z_counter = 0;
+	int s_counter = 0;
+	
+	for (int i = 0; string[i] != '\0' ; i++) {
+		if (string[i] == ZAFFIRO)
+			z_counter ++;
+		if (string[i] == SMERALDO)
+			s_counter ++;
+	}
+	
+	if (z_counter > s_counter)
+		return 1;
+	else
+		return 0;
+	
 }
