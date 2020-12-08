@@ -2,20 +2,27 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* Struttura "core" dell'esrcizio */
 typedef struct {
 	int start;
 	int end;
 	int d;
 } Att;
 
+/*
+ Wrapper struttura core, aggiunge informazioni utili
+ quali il numero di strutture allocate e il tempo totale
+ */
 typedef struct {
 	Att* v;
 	int v_lenght;
 	int total_d;
 } Att_table;
 
+/* Permette la realizzazione della lista */
 typedef struct _att_list Att_list;
 
+/* Definizione lista */
 struct _att_list {
 	Att_table* table;
 	Att_list* next;
@@ -42,22 +49,29 @@ int main(int argc, const char * argv[]) {
 	
 	Att* my_att;
 	
+	/* Controllo file input */
 	if (argc < 2) {
 		printf("Error: PARAM %s FILENAME\n", argv[0]);
 		exit(EXIT_FAILURE);
 	}
 	
+	/* Acquisizione attese e numero di attese da file */
 	int att_number = fill_att((char *) argv[1], &my_att);
-	
-//	for (int i = 0; i < att_number; i++) {
-//		printf("Start: %d\nEnd: %d\nDiff: %d\n\n", my_att[i].start, my_att[i].end, my_att[i].d);
-//	}
-	
+
+	/* Stampa combinaizone migliore */
 	attSel(att_number, my_att);
 	
 	return 0;
 }
 
+/**
+ Permette l'inizializzazione di una lista
+ 
+ @param v puntatore al vettore si strutture Att
+ @param v_lenght numero di strutture Att allocate e puntate da v
+ @returns @b Att_list* il putatore alla testa di una "lista pulita"
+ @returns @b NULL se ci sono stati problemi
+ */
 Att_list* init_att(Att* v, int v_lenght){
 	
 	Att_table* att_table = (Att_table*) malloc(sizeof(Att_table));
@@ -91,6 +105,13 @@ Att_list* init_att(Att* v, int v_lenght){
 	
 }
 
+/**
+ Scorre tutta la lista passata, restituisce il puntatore all'ultimo nodo
+ 
+ @param att_list la testa della lista che vogliamo scorrere
+ @returns @b Att_list* puntatore all'ultimo nodo della lista
+ @returns @b NULL se ci sono stati problemi
+ */
 Att_list* scroll_att_list(Att_list* att_list){
 	
 	/* Caso lista vuota */
@@ -110,6 +131,13 @@ Att_list* scroll_att_list(Att_list* att_list){
 	
 }
 
+/**
+ Supplica una lista
+ 
+ @param att_list lista da duplicare
+ @returns @b Att_list* puntatore alla nuova lista duplicata
+ @returns @b NULL se ci sono stati problemi
+ */
 Att_list* dup_att_list(Att_list* att_list){
 	
 	Att_list* new_node = (Att_list*) malloc(sizeof(Att_list));
@@ -126,6 +154,14 @@ Att_list* dup_att_list(Att_list* att_list){
 	
 }
 
+/**
+ Inizalizza una struttura tabella
+ 
+ @param v puntatore a una o più strutture Att
+ @param v_lenght numero di strutture Att
+ @returns @b Att_table* il puntatore ad una struttura tabella inizializzata
+ @returns @b NULL se ci sono stati problemi
+ */
 Att_table* init_att_table(Att* v, int v_lenght){
 	
 	Att_table* dup = (Att_table*) malloc(sizeof(Att_table));
@@ -147,6 +183,13 @@ Att_table* init_att_table(Att* v, int v_lenght){
 	
 }
 
+/**
+ Duplica una struttura tabella
+ 
+ @param att_table puntatore alla tabella da duplicare
+ @returns @b Att_table* puntatore a tabella duplicata
+ @returns @b NULL se ci sono stati problemi
+ */
 Att_table* dup_att_table(Att_table* att_table){
 	
 	Att_table* duplicate = (Att_table*) malloc(sizeof(Att_table));
@@ -164,6 +207,14 @@ Att_table* dup_att_table(Att_table* att_table){
 	
 }
 
+/**
+ Duplica una struttura Att
+ 
+ @param att struttura da duplicare
+ @param att_number numero di strutture att da duplicare
+ @returns @b Att* puntatore alla prima struttura duplicata
+ @returns @b NULL se ci sono stati problemi
+ */
 Att* dup_att(Att* att, int att_number){
 	
 	if (att_number == 0) {
@@ -183,6 +234,15 @@ Att* dup_att(Att* att, int att_number){
 	
 }
 
+/**
+ Legge da file e alloca spazio al puntatore specificato dal chiamante per
+ le attese lette
+ 
+ @param file_name nome del file dal quale leggere le attese
+ @param my_att puntatore a puntatore attese (vuoto)
+ @returns @b int numero di attese lette
+ @return 0 se ci sono stati problemi
+ */
 int fill_att(char* file_name, Att** my_att){
 	
 	FILE* fp = fopen(file_name, "r");
@@ -210,6 +270,14 @@ int fill_att(char* file_name, Att** my_att){
 	
 }
 
+/**
+ Confronta due attese
+ 
+ @param att_1 prima struttura attesa da confrontare
+ @param att_2 seconda struttura attesa da confrontare
+ @returns @b 1 se la struttura att_2 può essere inserita dopo att_1
+ @returns @b 0 in caso contrario
+ */
 int is_compatible(Att att_1, Att att_2){
 	
 	if (att_1.end <= att_2.start)
@@ -219,7 +287,17 @@ int is_compatible(Att att_1, Att att_2){
 	
 }
 
-void attSel(int N, Att *v){
+/**
+ Funzioe wrapper, inizializza tabella e liste, in modo che il chiamante non si debba preoccupare di
+ "capire" il funzionamento delle strutture.
+ Richiama per N volte la funzione di generazione delle combinazioni possibili, in modo da
+ averne per tuttu i tempi di attesa
+ 
+ @param N numero di strutture Att
+ @param v puntatore a prima struttura Att
+ 
+ */
+void attSel(int N, Att* v){
 	
 	Att_table* my_table = NULL;
 	int max = 0;
@@ -242,6 +320,12 @@ void attSel(int N, Att *v){
 	
 }
 
+/**
+ Funzione che si occupa della generazione delle possilbi combinazioni corrette
+ 
+ @param head puntatore alla testa della lista in cui verranno inserite tutte le combinazioni possibli linkate alla prima trvata nella info_table
+ @param info_table tabella "informativa" in cui sono contenute tutte le "tempistiche"
+ */
 void build_att_list(Att_list* head, Att_table* info_table){
 	
 	Att_list* current = scroll_att_list(head);
@@ -283,6 +367,12 @@ void build_att_list(Att_list* head, Att_table* info_table){
 	
 }
 
+/**
+ Restituisce la tabella massimizzante il tempo
+ 
+ @param head testa della lista dalla quale estrarre l'informazione
+ @returns @b Att_table* puntatore alla tabella massimizzante il tempo
+ */
 Att_table* get_max(Att_list* head){
 	
 	int max_d = 0;
@@ -303,6 +393,11 @@ Att_table* get_max(Att_list* head){
 	
 }
 
+/**
+ Stampa una tabella
+ 
+ @param table puntatore alla tabella da stampare
+ */
 void print_table(Att_table* table){
 	
 	for (int j = 0; j < table->v_lenght; j++)
