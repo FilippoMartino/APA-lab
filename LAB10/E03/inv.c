@@ -1,5 +1,7 @@
 #include "inv.h"
 
+
+
 void stat_read(FILE *fp, stat_t *statp){
 	
 	fscanf(fp, "%d %d %d %d %d %d",
@@ -82,5 +84,30 @@ stat_t gestisci_soglia(stat_t* stat, int soglia){
 	
 	return current;
 	
+}
+
+stat_t init_stat(){
+	stat_t current;
+	current.atk = 0;
+	current.def = 0;
+	current.hp = 0;
+	current.mag = 0;
+	current.mp = 0;
+	current.spr = 0;
+	
+	return current;
+}
+
+stat_t sum_stat(stat_t stat_1, stat_t stat_2){
+	
+	stat_t current;
+	current.atk = stat_1.atk + stat_2.atk;
+	current.def = stat_1.def + stat_2.def;
+	current.hp = stat_1.hp + stat_2.hp;
+	current.mag = stat_1.mag + stat_2.mag;
+	current.mp = stat_1.mp + stat_2.mp;
+	current.spr = stat_1.spr + stat_2.spr;
+	
+	return current;
 }
 

@@ -25,10 +25,10 @@ void pg_clean(pg_t *pgp){
 
 void pg_print(FILE *fp, pg_t *pgp, invArray_t invArray){
 	
-	
+	stat_t sum = sum_stat(pgp->b_stat, pgp->eq_stat);
 	
 	fprintf(fp, "%s %s %s ", pgp->cod, pgp->nome, pgp->classe);
-	stat_print(fp, &pgp->b_stat, 1);
+	stat_print(fp, &sum , 1);
 	fprintf(fp, "\nEquipaggiamenti: ");
 	equipArray_print(fp, pgp->equip, invArray);
 	
@@ -38,4 +38,7 @@ void pg_print(FILE *fp, pg_t *pgp, invArray_t invArray){
 di fatto e' sufficiente chiamare l'opportuna funzione dal modulo equipArray */
 void pg_updateEquip(pg_t *pgp, invArray_t invArray){
 	equipArray_update(pgp->equip, invArray);
+	
+	pgp->eq_stat = sum_stat(pgp->eq_stat, get_inv_stat(pgp->equip, invArray));
+	
 }

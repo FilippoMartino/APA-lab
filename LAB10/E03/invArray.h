@@ -25,5 +25,5 @@ inv_t *invArray_getByIndex(invArray_t invArray, int index);
 int invArray_searchByName(invArray_t invArray, char *name);
 
 /* Si possono aggiungere altre funzioni se ritenute necessarie */
-
+stat_t get_inv_stat_by_index(invArray_t invArray, int index);
 #endif

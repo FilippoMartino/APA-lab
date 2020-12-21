@@ -21,13 +21,15 @@ static link new_node(pg_t pg, link next){
 	strcpy(node->pgp->nome, pg.nome);
 	strcpy(node->pgp->classe, pg.classe);
 	node->pgp->b_stat = pg.b_stat;
-	node->pgp->eq_stat = pg.eq_stat;
+	node->pgp->eq_stat = init_stat();
 	node->pgp->equip = pg.equip;
 	node->next = next;
 	
 	return node;
 	
 }
+
+
 
 /* creatore e distruttore */
 pgList_t pgList_init(void){

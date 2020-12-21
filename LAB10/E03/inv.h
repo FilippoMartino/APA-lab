@@ -35,4 +35,10 @@ stat_t inv_getStat(inv_t *invp);
 
 /* Serve per gesire strutture con valori stat sotto la soglia*/
 static stat_t gestisci_soglia(stat_t* stat, int soglia);
+
+stat_t init_stat(void);
+
+stat_t sum_stat(stat_t stat_1, stat_t stat_2);
+
 #endif
+

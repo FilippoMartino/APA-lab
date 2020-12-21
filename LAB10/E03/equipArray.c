@@ -89,8 +89,21 @@ void equipArray_update(equipArray_t equipArray, invArray_t invArray){
 	return;
 	
 }
+
 /* torna indice (nel vettore inventario) dell'oggetto in posizione index (0..EQUIP_SLOT-1) di equipArray */
 int equipArray_getEquipByIndex(equipArray_t equipArray, int index){
 	return equipArray->equipArray[index];
 }
 
+stat_t get_inv_stat(equipArray_t equip_array, invArray_t inv_array){
+	
+	int number = equip_array->size;
+	stat_t current = init_stat();
+	
+	
+	for (int i = 0; i < number; i++)
+		current = sum_stat(current, get_inv_stat_by_index(inv_array, equip_array->equipArray[i]));
+		
+		
+	return current;
+}

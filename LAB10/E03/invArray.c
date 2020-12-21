@@ -7,6 +7,8 @@ struct invArray_s{
 	int size;
 };
 
+
+
 /* creatore e disruttore */
 invArray_t invArray_init(void){
 	
@@ -104,3 +106,6 @@ int invArray_searchByName(invArray_t invArray, char *name){
 	
 }
 
+stat_t get_inv_stat_by_index(invArray_t invArray, int index){
+	return invArray->invp[index].stat;
+}

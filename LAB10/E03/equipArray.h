@@ -27,5 +27,5 @@ void equipArray_update(equipArray_t equipArray, invArray_t invArray);
 int equipArray_getEquipByIndex(equipArray_t equipArray, int index);
 
 /* Si possono aggiungere altre funzioni se ritenute necessarie */
-
+stat_t get_inv_stat(equipArray_t equip_array, invArray_t inv_array);
 #endif
