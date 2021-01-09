@@ -9,6 +9,7 @@
 #define BOUNS 1.5
 #define ERROR_MESSAGE "EMPTY"
 
+/* Enumerazioni per rendere più comprensibili gli attributi degli elementi */
 typedef enum {
 	transizione,
 	indietro,
@@ -20,6 +21,7 @@ typedef enum {
 	frontalmente
 } Direzione;
 
+/* Struttura elemento */
 typedef struct {
 	char nome[MAX_SIZE];
 	Tipologia tipologia;
@@ -31,6 +33,7 @@ typedef struct {
 	int difficolta;
 }Elemento;
 
+/* Strutura diagonale per facilitarmi la gestione di uno spettacolo */
 typedef struct {
 	Elemento elementi[MAX_ELEMENTS];
 	int numero_elementi;
@@ -38,12 +41,11 @@ typedef struct {
 } Diagonale;
 
 int acquisici_elementi(char*, Elemento**);
+Elemento get_first_of_row(Elemento*, int, int*, int);
+Elemento get_elemento(Elemento*, Elemento, int, int*, int, int, int);
+
 void stampa_elementi(Elemento*, int);
 void print_show(Elemento*, int, int, int);
-
-Elemento get_first_of_row(Elemento*, int, int*, int);
-
-Elemento get_elemento(Elemento*, Elemento, int, int*, int, int, int);
 
 int main(int argc, const char * argv[]) {
 	
@@ -67,6 +69,7 @@ int main(int argc, const char * argv[]) {
 }
 
 
+/* Semplice funzione di lettura di un file */
 int acquisici_elementi(char* file_name, Elemento** el_array){
 	
 	FILE* fp = fopen(file_name, "r");
@@ -102,6 +105,7 @@ int acquisici_elementi(char* file_name, Elemento** el_array){
 	
 }
 
+/* Funzione di stampa */
 void stampa_elementi(Elemento* elem_array, int n){
 	
 	for (int i = 0; i < n; i++)
@@ -111,9 +115,25 @@ void stampa_elementi(Elemento* elem_array, int n){
 	
 }
 
+/**
+ Cuore dell'algoritmo Greedy:
+ Si occupa di generare una soluzione valida che si avvicini il più possibile alla solizione migliore.
+ Ho "forzato" il Greedy in più punti, ad esempio:
+ - Mantengo inizialmente una difficoltà più bassa con un vincolo alla funzione di generazione dell'elemento, per poi andarla a "liberare" dopo la seconda colonna (precisamente nel secondo
+  elemento della terza diagonale, in modo da intercettare un possibile punto bouns)
+ - Forzo la genrazione di elementi acrobatici (avanti/indietro) e non nelle prime due colonne in modo da cercare di soddisfare i vincoli imposti dal probema
+ */
 void print_show(Elemento* elem_array, int n, int DD, int DP){
 	
 	Elemento temp;
+	
+	/*
+	 Necessito di questo "elemento indietro" per riciclare la funzione di generazione
+	 di un elemento appetibile nel secondo elemento della seconda diagonale, in questo
+	 modo forzo il greedy a comprendere anche un elemento indietro nella diagonale e
+	 di conseguenza nello spettacolo.
+	 Per generarla prendo il primo elemento "indietro" disponibile nel array degli elementi
+	 */
 	Elemento elemento_indietro;
 	
 	for (int i = 0; i < n; i++){
@@ -122,8 +142,6 @@ void print_show(Elemento* elem_array, int n, int DD, int DP){
 			break;
 		}
 	}
-		
-	
 	
 	/* Istanzio l'array di diagonali in cui verrà salvato lo spettacolo */
 	Diagonale spettacolo[MAX_DIAG];
@@ -253,20 +271,14 @@ void print_show(Elemento* elem_array, int n, int DD, int DP){
 		punteggio_diagonale = 0;
 	}
 	
-	
-	
-	
-	
 }
 
-Elemento get_elemento(Elemento* elem_array,
-					  Elemento elemento_precendente,
-					  int n,
-					  int* DP,
-					  int diff_restante,
-					  int is_acrobatico,
-					  int minim_diff
-					  ){
+/**
+ Funzione quanto più possibile generale, gestisce la generazione di una soluzione ottima con i parametri specificati (ove possibile)
+ in caso non sia stata trovata una soluzione accettabile restituisce un Elemento di default con il nome impostato su un messaggio di
+ errore, sarà il client a dover controllare il risultato della funzione prima di comprendere l'elemento nella diagonale
+ */
+Elemento get_elemento(Elemento* elem_array, Elemento elemento_precendente, int n, int* DP, int diff_restante, int is_acrobatico, int minim_diff){
 	
 	Elemento best_element;
 	strcpy(best_element.nome, ERROR_MESSAGE);
@@ -341,6 +353,10 @@ Elemento get_elemento(Elemento* elem_array,
 	return best_element;
 }
 
+/**
+ Funzione personalizzata per la generazione della prima colonna dello spettacolo, cerco di tenere la dififcoltà più bassa possibile (discriminando
+ eventualmente per punteggio), do la possibilità di scegliere se restituire un elemento acrobatico o meno
+ */
 Elemento get_first_of_row(Elemento* elem_array, int n, int* DP, int is_acrobatico){
 	
 	Elemento my_elemento;
