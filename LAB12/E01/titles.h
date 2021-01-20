@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "date.h"
+#include "quotes.h"
 
 #define MAX_CODE_SIZE 20
 
@@ -12,6 +13,8 @@
 typedef struct _title* Title;
 
 typedef struct _title_list* TL;
+
+/*_________________________TITLE_________________________*/
 
 /**
  Inizializzazione di titolo
@@ -47,10 +50,50 @@ void title_show(Title title);
 int title_cmp(Title t_1, Title t_2);
 
 /**
+ Stampa la quotazione di un titolo alla data specificata
+ 
+ @param title il titolo del quale stampare la data
+ @param date data della quotazione da stampare
+ */
+void title_print_quote_by_date(Title title, Date date);
+
+/**
+ Stampa la quotazione massima e quella minima in un intrevallo di due date (se presente)
+ 
+ @param title titolo del quale stampare le quotazioni
+ @param date_1 limite inferiore
+ @param date_2 limite superiore
+ */
+void title_print_max_min_quote_between_date(Title title, Date date_1, Date date_2);
+
+/**
+ Stampa la quotazione massima e quella minima assolute
+ 
+ @param title titolo del quale stampare le quotazioni
+ */
+void title_print_max_min_quote(Title title);
+
+/**
+ Bilancia il BST delle quotazioni
+ 
+ @param title titolo di cui si vuole bilanciare l'array delle quotazioni
+ */
+void title_balance_bst(Title title);
+
+/**
+ Restituisce il BST associato al titolo
+ 
+ @param title titolo da cui si vuole estrarre il bst
+ */
+Q_BST title_get_bst(Title title);
+
+/**
  Libera lo spazio in memoria occupato da un ciclo
  @param title l'adt da deallocare
  */
 void title_free(Title title);
+
+/*_________________________TL_________________________*/
 
 /**
  Inizializza una lista di titoli

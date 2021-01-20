@@ -90,3 +90,59 @@ int date_cmp(Date date_1, Date date_2){
 	return -1;
 		
 }
+
+
+int date_is_between(Date date_1, Date date_2, Date key){
+	
+	/* Controllo che la prima data sia più piccola della seconda, in modo da avere un potenziale intervallo*/
+	if (date_cmp(date_1, date_2) == -1)
+		return 0;
+	
+	/* Caso in cui la data sia pari ad uno degli estremi dell'intervallo */
+	if (!date_cmp(date_1, key) || !date_cmp(date_2, key))
+		return 1;
+	
+	if (date_cmp(date_1, key) == 1 && date_cmp(key, date_2) == 1)
+		return 1;
+	else
+		return 0;
+	
+}
+
+int date_same_day(Date date_1, Date date_2){
+	
+	if (date_1.year == date_2.year &&
+		date_1.month == date_2.month &&
+		date_1.day == date_2.day)
+		return 1;
+	else
+		return 0;
+	
+}
+
+void day_show(Date date){
+	printf("%d/%d/%d", date.year, date.month, date.day);
+}
+
+Date date_get_max(void){
+	
+	Date date;
+	date.year = 1000000;
+	date.month = 12;
+	date.day = 31;
+	date.hour = 23;
+	date.minutes = 59;
+	
+	return date;
+}
+
+Date date_get_min(){
+	Date date;
+	date.year = 0;
+	date.month = 1;
+	date.day = 1;
+	date.hour = 1;
+	date.minutes = 1;
+	
+	return date;
+}

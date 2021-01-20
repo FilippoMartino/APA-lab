@@ -34,6 +34,29 @@ Date date_init(int year, int month, int day, int hour, int minutes);
 int date_cmp(Date date_1, Date date_2);
 
 /**
+ Cerca se la chiave key è compresa nell'intervallo delle due date
+ 
+ @param date_1 inizio internvallo
+ @param date_2 fine intervallo
+ @param key data che dobbiamo verificare essere compresa tra date_1 e date_2
+ 
+ @return 1 se la data è compresa
+ @return 0 se la data non è compresa
+ */
+int date_is_between(Date date_1, Date date_2, Date key);
+
+/**
+ Controlla se le due date passate corrispondono allo stesso giorno
+ 
+ @param date_1 prima data da confrontare
+ @param date_2 seconda data da confrontare
+ 
+ @return 1 se i due giorni sono uguali
+ @return 0 altrimenti
+ */
+int date_same_day(Date date_1, Date date_2);
+
+/**
 Semplice funzione che ritorna una data di default nulla 
  */
 Date date_get_default(void);
@@ -54,8 +77,27 @@ void date_show_IT(Date date);
 
 /**
  Stampa un data nel formato del testo
+
  @param date data da stampare
  */
 void date_show(Date date);
+
+/**
+ Stampa un giorno nel formato del testo
+
+ @param date data da stampare
+ */
+void day_show(Date date);
+
+/**
+ Ritorna una data massima di default
+ */
+Date date_get_max(void);
+
+/**
+ Ritorna una data minima di default
+ */
+Date date_get_min(void);
+
 
 #endif /* date_h */
