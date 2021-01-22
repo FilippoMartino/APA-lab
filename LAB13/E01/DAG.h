@@ -73,7 +73,7 @@ void DAG_store(DAG dag, FILE* fout);
 /**
  
  */
-Edge* DAG_get_pow_edges(DAG dag);
+Edge* DAG_get_pow_edges(DAG dag, int* edges_number);
 
 /**
  
@@ -83,6 +83,17 @@ void DAG_remove_edge(DAG dag, int id_1, int id_2);
 /**
  
  */
+void DAG_remove_edges(DAG dag, Edge* edges, int edges_number);
+
+/**
+ 
+ */
 int DAG_is_dag(DAG dag);
 
+/**
+ 
+ */
+void DAG_print_edges(DAG dag, Edge* edges, int size);
+
 #endif /* DAG_h */
+

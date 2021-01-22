@@ -18,10 +18,20 @@ int main(int argc, const char * argv[]) {
 	DAG_store(my_dag, stdout);
 	
 	if (!DAG_is_dag(my_dag)){
-		Edge* to_remove = DAG_get_pow_edges(my_dag);
+		
+		int to_remove_size;
+		Edge* to_remove = DAG_get_pow_edges(my_dag, &to_remove_size);
+		DAG_remove_edges(my_dag, to_remove, to_remove_size);
+		
+		printf("Archi rimossi per rendere il grafo un DAG: ");
+		DAG_print_edges(my_dag, to_remove, to_remove_size);
+
 	} else {
 		printf("é già un dag\n");
 	}
+	
+	printf("DAG: ");
+	DAG_store(my_dag, stdout);
 	
 	DAG_free(my_dag);
 	

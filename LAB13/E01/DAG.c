@@ -1,4 +1,8 @@
 #include "DAG.h"
+#include "PQ.h"
+#include <limits.h>
+
+#define maxWT INT_MAX
 
 typedef struct _node* link;
 
@@ -112,9 +116,6 @@ static link list_remove_node(link head, int key, link z){
 /* Controlla se un grafo ha un vertice sink */
 static int has_sink(DAG dag, int* vertex){
 	
-	int candidate = 0;
-	int pass = 0;
-	
 	for (int i = 0; i < dag->V; i++){
 		if (dag->adj_list[i] == dag->z && is_candidate_ok(dag, i)){
 			*vertex = i;
@@ -223,19 +224,6 @@ static int is_edges_valid(DAG dag, Edge* edges, int edge_size){
 	for (int i = 0; i < edge_size; i++)
 	remove_edge(my_dag, edges[i]);
 	
-	printf("Controllo per i seguenti archi: ");
-	
-	for (int i = 0; i < edge_size; i++)
-		printf("[%c %c %d] ", ST_search_by_index(dag->tab, edges[i].v).node_name, ST_search_by_index(dag->tab, edges[i].w).node_name, edges[i].wt);
-	
-	if (is_DAG(my_dag)){
-		printf("OK");
-	} else {
-		printf("KO");
-	}
-	
-	printf("\n");
-	
 	if (is_DAG(my_dag)){
 		return 1;
 	} else {
@@ -271,27 +259,13 @@ static Edge* powerset(DAG dag, int set_size, int* card){
 			}
 		}
 		
-		
-		//		printf("Powerset generato: ");
-		//		for (int i = 0; i < counter; i++)
-		//			printf("[%c %c] ", ST_search_by_index(dag->tab, set[i].v).node_name, ST_search_by_index(dag->tab, set[i].w).node_name);
-		//		printf("\n");
-		
 		if (i && is_edges_valid(dag, set, counter)){
 			
 			/* Controllo se la cardinalità sella soluzione ottenuta è accettabile */
 			if (counter <= min_card){
 				min_card = counter;
 				if (get_weight(set, counter) > max_weight){
-					
-					printf("Archi accettabili come soluzione: ");
-					for (int i = 0; i < counter; i++)
-					printf("[%c %c %d] ", ST_search_by_index(dag->tab, set[i].v).node_name,
-						   ST_search_by_index(dag->tab, set[i].w).node_name,
-						   set[i].wt);
-					printf("\n");
-					
-					
+				
 					max_weight = get_weight(set, counter);
 					sol = edges_dup(set, counter);
 					*card = counter;
@@ -456,39 +430,14 @@ void DAG_store(DAG dag, FILE* fout){
 	
 }
 
-Edge* DAG_get_pow_edges(DAG dag){
+Edge* DAG_get_pow_edges(DAG dag, int* edges_number){
 	
 	int card;
 	Edge* edges = powerset(dag, dag->E, &card);
 	
-	return NULL;
-}
-
-DAG DAG_remove_edges(DAG dag, Edge* edges, int edge_size){
+	*edges_number = card;
 	
-	DAG my_dag = DAG_init(dag->V);
-	my_dag->E = 0;
-	my_dag->tab = ST_dup(dag->tab);
-	
-	for (int i = 0; i < dag->E; i++) {
-		
-		link temp = dag->adj_list[i];
-		for (;temp != dag->z; temp = temp->next) {
-			
-			int can_insert = 1;
-			for (int j = 0; j < edge_size; j++)
-			if (temp->v == edges[j].w && i == edges[j].v)
-				can_insert = 0;
-			
-			if (can_insert){
-				my_dag->adj_list[i] = new_node(temp->v, temp->wt, my_dag->adj_list[i]);
-				my_dag->E = my_dag->E + 1;
-			}
-			
-		}
-	}
-	
-	return my_dag;
+	return edges;
 }
 
 /* Wrapper di is_dag per permettere ad un client esterno di accedevi */
@@ -498,4 +447,21 @@ int DAG_is_dag(DAG dag){
 
 void DAG_remove_edge(DAG dag, int id_1, int id_2) {
 	remove_edge(dag, edge_create(id_1, id_2, 0));
+}
+
+void DAG_remove_edges(DAG dag, Edge* edges, int edges_number){
+	
+	for (int i = 0; i < edges_number; i++) {
+		remove_edge(dag, edges[i]);
+	}
+	
+}
+
+void DAG_print_edges(DAG dag, Edge* edges, int size){
+	
+	for (int i = 0; i < size; i++)
+		printf("[%c %c - %d] ", ST_search_by_index(dag->tab, edges[i].v).node_name, ST_search_by_index(dag->tab, edges[i].w).node_name, edges[i].wt);
+	
+	printf("\n");
+	
 }
