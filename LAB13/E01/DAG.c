@@ -75,6 +75,14 @@ static DAG dup_dag(DAG dag){
 	
 }
 
+static int is_candidate_ok(DAG dag, int candidate){
+	for (int i = 0; i < dag->V; i++)
+	for (link temp = dag->adj_list[i]; temp != dag->z; temp = temp->next)
+	if (temp->v == candidate)
+		return 1;
+	return 0;
+}
+
 /* Rimuove un nodo da una lista */
 static link list_remove_node(link head, int key, link z){
 	
@@ -107,28 +115,20 @@ static int has_sink(DAG dag, int* vertex){
 	int candidate = 0;
 	int pass = 0;
 	
-	for (int i = 0; i < dag->V; i++)
-	if (dag->adj_list[i] == dag->z)
-		candidate = i;
-	
-	
-	for (int i = 0; i < dag->V; i++)
-	for (link temp = dag->adj_list[i]; temp != dag->z; temp = temp->next)
-	if (temp->v == candidate)
-		pass = 1;
-	
-	
-	if (pass){
-		*vertex = candidate;
-		return 1;
-	} else {
-		*vertex = -1;
-		return 0;
+	for (int i = 0; i < dag->V; i++){
+		if (dag->adj_list[i] == dag->z && is_candidate_ok(dag, i)){
+			*vertex = i;
+			return 1;
+		}
 	}
+
+	*vertex = -1;
+	return 0;
+	
 	
 }
 
-static void  remove_edge(DAG dag, Edge e) {
+static void remove_edge(DAG dag, Edge e) {
 	
 	int v = e.v;
 	int w = e.w;
@@ -155,15 +155,10 @@ static void remove_sink(DAG dag, int sink){
 			if (temp->v == sink){
 				dag->adj_list[i] = list_remove_node(dag->adj_list[i], sink, dag->z);
 				dag->E = dag->E - 1;
+				break;
 			}
 		}
 	}
-	
-	dag->V = dag->V - 1;
-	
-	Edge* edges = (Edge*) malloc(sizeof(Edge) * dag->E);
-	DAG_extract_edges(dag, edges);
-	
 	
 }
 
@@ -226,10 +221,20 @@ static int is_edges_valid(DAG dag, Edge* edges, int edge_size){
 	DAG my_dag = dup_dag(dag);
 	
 	for (int i = 0; i < edge_size; i++)
-		remove_edge(my_dag, edges[i])
+	remove_edge(my_dag, edges[i]);
 	
+	printf("Controllo per i seguenti archi: ");
 	
-	//	printf("Is connected: %d\nIs DAG: %d\n", is_connected(my_dag), is_DAG(my_dag, 0));
+	for (int i = 0; i < edge_size; i++)
+		printf("[%c %c %d] ", ST_search_by_index(dag->tab, edges[i].v).node_name, ST_search_by_index(dag->tab, edges[i].w).node_name, edges[i].wt);
+	
+	if (is_DAG(my_dag)){
+		printf("OK");
+	} else {
+		printf("KO");
+	}
+	
+	printf("\n");
 	
 	if (is_DAG(my_dag)){
 		return 1;
@@ -492,5 +497,5 @@ int DAG_is_dag(DAG dag){
 }
 
 void DAG_remove_edge(DAG dag, int id_1, int id_2) {
-	removeE(G, edge_create(id1, id2, 0));
+	remove_edge(dag, edge_create(id_1, id_2, 0));
 }

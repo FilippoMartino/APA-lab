@@ -19,6 +19,8 @@ int main(int argc, const char * argv[]) {
 	
 	if (!DAG_is_dag(my_dag)){
 		Edge* to_remove = DAG_get_pow_edges(my_dag);
+	} else {
+		printf("é già un dag\n");
 	}
 	
 	DAG_free(my_dag);

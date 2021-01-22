@@ -49,4 +49,6 @@ Nodo ST_search_by_index(ST st, int index);
  */
 ST ST_dup(ST st);
 
+void ST_delete(ST st, int key);
+
 #endif /* ST_h */
