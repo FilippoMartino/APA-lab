@@ -70,7 +70,7 @@ void  MAT_GRAPH_insert_E(M_Graph g, int id_1, int id_2, int wt);
 int   MAT_GRAPH_getIndex(M_Graph g, Nodo label);
 
 /**
- Inserisce in un dato "arco" *a gli archi del grado g
+ Inserisce in un dato "arco" *a gli archi del grfado g
  ! L'allocazione della memoria dell'array a deve essere fatta dal client
  @param g grafo dal quale estrarre gli archi
  @param a array di archi (deve già essere stato dimensionato dal client) in cui verranno inseriti gli archi di g
