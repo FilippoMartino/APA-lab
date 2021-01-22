@@ -105,21 +105,3 @@ ST ST_dup(ST st){
 	
 	return my_st;
 }
-
-void ST_delete(ST st, int key){
-
-	Nodo* node_array = (Nodo*) calloc(st->size, sizeof(Nodo));
-	
-	int counter = 0;
-	for (int i = 0; i < st->size; i++){
-		if (i != key){
-			node_array[counter].node_name = st->node_array[i].node_name;
-			counter ++;
-		}
-	}
-	
-	st->node_array = node_array;
-	st->size --;
-
-	
-}
