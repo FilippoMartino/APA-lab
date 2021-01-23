@@ -33,6 +33,9 @@ int main(int argc, const char * argv[]) {
 	printf("DAG: ");
 	DAG_store(my_dag, stdout);
 	
+	DAG_max_wheight_path(my_dag);
+	
+	
 	DAG_free(my_dag);
 	
 	fclose(fin);

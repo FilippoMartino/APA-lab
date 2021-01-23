@@ -122,7 +122,7 @@ static int has_sink(DAG dag, int* vertex){
 			return 1;
 		}
 	}
-
+	
 	*vertex = -1;
 	return 0;
 	
@@ -198,7 +198,7 @@ static int is_DAG(DAG dag){
 	
 	is_dag_rec(temp, &is_dag);
 	
-	free(temp);
+	DAG_free(dag);
 	
 	return is_dag;
 	
@@ -265,7 +265,7 @@ static Edge* powerset(DAG dag, int set_size, int* card){
 			if (counter <= min_card){
 				min_card = counter;
 				if (get_weight(set, counter) > max_weight){
-				
+					
 					max_weight = get_weight(set, counter);
 					sol = edges_dup(set, counter);
 					*card = counter;
@@ -277,6 +277,95 @@ static Edge* powerset(DAG dag, int set_size, int* card){
 	}
 	
 	return sol;
+	
+}
+
+/* Cerca la distanza massima nell'array dei nodi già visitati */
+static int get_max_distance(int* dist, int* is_visited, int v){
+	
+	/* Necessario controllare nell'array la distanza maggiore */
+	int max = -1;
+	int max_index = 0;
+	
+	for (int i = 0; i < v; i++){
+		if (!is_visited[i] && dist[i] >= max){
+			max = dist[i];
+			max_index = i;
+		}
+	}
+	
+	return max_index;
+}
+
+/* Controlla se esiste l'arco specificato */
+static int is_node_present(DAG dag, int v, int w){
+	
+	link temp = dag->adj_list[v];
+	
+	for (; temp != dag->z; temp = temp->next)
+	if (temp->v == w)
+		return 1;
+	
+	return 0;
+}
+
+/* Restituisce, se presente, il peso del nodo w (arco v-w) */
+static int get_w_size(DAG dag, int v, int w){
+	
+	link temp = dag->adj_list[v];
+	
+	for (; temp != dag->z; temp = temp->next)
+	if (temp->v == w)
+		return temp->v;
+	
+	return -1;
+}
+
+static void reverse_dijkstra(DAG dag, int starting_point){
+	
+	/* Vettore con le distanze finali e vettore per il controllo se ho già visitato un nodo */
+	int dist[dag->V];
+	int is_visited[dag->V];
+	
+	/* Inizializzazione dei due vettori */
+	for (int i = 0; i < dag->V; i++) {
+		dist[i] = -1; //inverso dei + infinto che si usano per la ricerca del cammino minimo
+		is_visited[i] = 0;
+	}
+	
+	/* Distanza dal nodo sorgente */
+	dist[starting_point] = 0;
+	
+	/* Ciclo per ogni veritce */
+	for (int i = 0; i < dag->V - 1; i++) {
+		
+		/* Ottengo l'indice dell'elemento a distanza massima */
+		int w = get_max_distance(dist, is_visited, dag->V);
+		
+		is_visited[w] = 1;
+		
+		
+		/*
+		 Se trovo nella lista di adiacenze relative al verice trattato un valore:
+		 - controllo se non l'ho ancora visitato
+		 - controllo se la distanza passando dall'arco che sto analizzando è maggiore, in caso affermativo aggiorno
+		 */
+		
+		for (int v = 0; v < dag->V; v++)
+			if (!is_visited[v] && is_node_present(dag, w, v) && dist[w] != -1 && (dist[w] + get_w_size(dag, w, v) > dist[v]))
+				dist[v] = dist[w] + get_w_size(dag, w, v);
+		
+	}
+	
+	/* Stampa dei risultati */
+	for (int i = 0; i < dag->V; i++){
+		if(dist[i] == -1)
+			printf("%c (N/A)\n", ST_search_by_index(dag->tab, i).node_name);
+		else
+			printf("%c [%d]\n", ST_search_by_index(dag->tab, i).node_name, dist[i]);
+	}
+	printf("\n");
+	
 	
 }
 
@@ -457,10 +546,22 @@ void DAG_remove_edges(DAG dag, Edge* edges, int edges_number){
 	
 }
 
+/* Stampa un insieme di archi */
 void DAG_print_edges(DAG dag, Edge* edges, int size){
 	
 	for (int i = 0; i < size; i++)
-		printf("[%c %c - %d] ", ST_search_by_index(dag->tab, edges[i].v).node_name, ST_search_by_index(dag->tab, edges[i].w).node_name, edges[i].wt);
+	printf("[%c %c - %d] ", ST_search_by_index(dag->tab, edges[i].v).node_name, ST_search_by_index(dag->tab, edges[i].w).node_name, edges[i].wt);
+	
+	printf("\n");
+	
+}
+
+void DAG_max_wheight_path(DAG dag){
+	
+	for(int i = 0; i < dag->V; i++){
+		printf("Distanza [%c] : \n", ST_search_by_index(dag->tab, i).node_name);
+		reverse_dijkstra(dag, i);
+	}
 	
 	printf("\n");
 	
